@@ -15,6 +15,9 @@ body {
   min-height: 100vh;
   padding: 20px;
   transition: background-color 1s ease;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 body.barbecue-night {
   background-color: #1a0a00;
@@ -262,6 +265,62 @@ body.barbecue-night .custom-context {
   from { transform: translateX(-50%) translateY(30px); opacity: 0; }
   to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
+/* 加油祝福彩蛋的隐藏小火苗 */
+.hidden-fire {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  font-size: 22px;
+  opacity: 0.25;
+  cursor: pointer;
+  z-index: 50;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  user-select: none;
+  filter: grayscale(0.4);
+}
+.hidden-fire:hover, .hidden-fire:active {
+  opacity: 0.9;
+  transform: scale(1.3);
+  filter: grayscale(0);
+}
+
+/* 祝福横幅 */
+.wish-banner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff8e1;
+  border: 2px solid #ffb300;
+  border-radius: 16px;
+  padding: 18px 28px;
+  font-size: 1.15rem;
+  color: #e65100;
+  font-weight: bold;
+  box-shadow: 0 8px 30px rgba(255, 179, 0, 0.25);
+  z-index: 10000;
+  animation: wishPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  text-align: center;
+  white-space: nowrap;
+}
+@keyframes wishPop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* 奖杯粒子 */
+.trophy-particle {
+  position: fixed;
+  font-size: 26px;
+  pointer-events: none;
+  animation: floatUp linear forwards;
+  z-index: 9999;
+}
+@keyframes floatUp {
+  0% { transform: translateY(40px) scale(0.4) rotate(-15deg); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateY(-90vh) scale(1.1) rotate(15deg); opacity: 0; }
+}
 </style>
 </head>
 <body>
@@ -299,12 +358,32 @@ body.barbecue-night .custom-context {
 <div class="feedback" id="feedback"></div>
 </div>
 
+<div class="hidden-fire" title="试试点我～">🔥</div>
+
 <script>
-// ============ 右键彩蛋 ============
+// ============ 右键彩蛋（桌面端 + 移动端长按） ============
 document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
   showCustomContext(e.clientX, e.clientY);
 });
+
+// 移动端长按模拟右键（按住0.6秒触发）
+let touchTimer = null;
+let touchStartPos = null;
+document.addEventListener('touchstart', function(e) {
+  if (e.target.closest('button, input, label')) return;
+  touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  touchTimer = setTimeout(() => {
+    showCustomContext(touchStartPos.x, touchStartPos.y);
+    touchTimer = null;
+  }, 600);
+}, { passive: true });
+
+function cancelTouch() {
+  if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
+}
+document.addEventListener('touchend', cancelTouch);
+document.addEventListener('touchmove', cancelTouch);
 
 function showCustomContext(x, y) {
   let old = document.querySelector('.custom-context');
@@ -316,6 +395,11 @@ function showCustomContext(x, y) {
   div.style.top = y + 'px';
   div.innerText = '复制我干嘛，快去约烤肉！🍖';
   document.body.appendChild(div);
+
+  // 防止菜单超出屏幕
+  let rect = div.getBoundingClientRect();
+  if (rect.right > window.innerWidth) div.style.left = (window.innerWidth - rect.width - 10) + 'px';
+  if (rect.bottom > window.innerHeight) div.style.top = (window.innerHeight - rect.height - 10) + 'px';
 
   setTimeout(() => div.remove(), 2000);
 }
@@ -360,6 +444,19 @@ function triggerKonami() {
     if (feedback.innerText.includes('神秘代码')) feedback.style.display = 'none';
   }, 3000);
 }
+
+// 手机版：连续点击标题 7 次也触发烤肉雨
+let titleClickCount = 0;
+let titleClickTimer = null;
+document.querySelector('h1').addEventListener('click', function() {
+  titleClickCount++;
+  clearTimeout(titleClickTimer);
+  titleClickTimer = setTimeout(() => { titleClickCount = 0; }, 1500);
+  if (titleClickCount >= 7) {
+    triggerKonami();
+    titleClickCount = 0;
+  }
+});
 
 // ============ 疯狂点击 → 深夜烧烤模式 ============
 let clickCount = 0;
@@ -435,6 +532,38 @@ document.querySelector('.emoji').addEventListener('dblclick', function() {
   }
 });
 
+// ============ 加油祝福彩蛋 ============
+let wishTriggered = false;
+
+document.querySelector('.hidden-fire').addEventListener('click', function(e) {
+  if (wishTriggered) return;
+  wishTriggered = true;
+
+  // 奖杯和星星粒子从底部升起
+  const trophies = ['🏆','✨','🥇','💪','🎉','🌟'];
+  for (let i = 0; i < 30; i++) {
+    setTimeout(() => {
+      let p = document.createElement('div');
+      p.className = 'trophy-particle';
+      p.innerText = trophies[Math.floor(Math.random() * trophies.length)];
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.animationDuration = (2.5 + Math.random() * 3) + 's';
+      p.style.fontSize = (20 + Math.random() * 28) + 'px';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 5500);
+    }, i * 60);
+  }
+
+  // 弹出祝福横幅
+  let banner = document.createElement('div');
+  banner.className = 'wish-banner';
+  banner.innerHTML = '🔥 dscad 周末比赛顺利！<br>烤肉局等你凯旋～';
+  document.body.appendChild(banner);
+
+  setTimeout(() => banner.remove(), 3000);
+  setTimeout(() => wishTriggered = false, 5000);
+});
+
 // ============ 原始选择逻辑 ============
 let confirmClicks = 0;
 
@@ -470,3 +599,4 @@ function submitChoice() {
 
 </body>
 </html>
+
