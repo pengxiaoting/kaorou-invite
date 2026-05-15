@@ -80,23 +80,31 @@ body.barbecue-night .subtitle {
 body.barbecue-night .to-name {
   color: #ff8a65;
 }
-/* 夜间限定早睡提醒 */
-.night-reminder {
-  background-color: #ede7f6;
-  border-radius: 10px;
-  padding: 10px 16px;
-  margin-bottom: 14px;
+/* 时间问候弹窗 */
+.time-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-80px);
+  background-color: rgba(237, 231, 246, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid #b39ddb;
+  border-radius: 30px;
+  padding: 12px 26px;
+  font-size: 0.95rem;
   color: #4527a0;
-  font-size: 0.9rem;
-  text-align: center;
-  border: 1.5px dashed #b39ddb;
-  animation: popIn 0.6s ease;
-  transition: all 0.8s ease;
+  box-shadow: 0 6px 24px rgba(69, 39, 160, 0.15);
+  z-index: 10000;
+  animation: toastSlide 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  white-space: nowrap;
 }
-body.barbecue-night .night-reminder {
-  background-color: #1a0f2e;
-  color: #d1c4e9;
-  border-color: #7e57c2;
+@keyframes toastSlide {
+  0% { transform: translateX(-50%) translateY(-80px); opacity: 0; }
+  100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+@keyframes toastOut {
+  0% { transform: translateX(-50%) translateY(0); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-60px); opacity: 0; }
 }
 
 /* 每日运势签 */
@@ -413,8 +421,6 @@ body.barbecue-night .custom-context {
 <h1>烤肉局邀请函</h1>
 <p class="subtitle">From: hygee / To: <span class="to-name">dscad</span></p>
 
-<div id="nightReminder"></div>
-
 <div class="daily-fortune" id="dailyFortune">今日运势加载中…</div>
 
 <div class="message">
@@ -494,24 +500,159 @@ function showDailyFortune() {
 }
 showDailyFortune();
 
-// ============ 早晚安问候 ============
+// ============ 早晚安问候弹窗 ============
+const nightMessages = [
+  "又被我发现了，还不睡，还不睡！",
+  "凌晨了朋友，你的发际线还好吗 👀",
+  "月亮不睡你不睡，你是秃头小宝贝 🌙",
+  "放下手机，梦里啥都有",
+  "这个点还在刷？我劝你善良（去睡觉）",
+  "夜猫子认证成功 🏆 快去休息！",
+  "再熬下去，烤肉都救不了你的黑眼圈",
+  "深夜模式已开启——但建议你关闭自己去睡觉",
+  "别卷了，被窝在等你",
+  "悄悄告诉你：熬夜会变笨哦",
+  "还在看手机？蚊子都睡了 🦟",
+  "仙人指路：左拐是床，右拐也是床",
+  "你知道现在几点了吗？手机说它也想下班",
+  "熬夜冠军非你莫属，奖杯明天发（睡了才有）",
+  "研究表明：熬夜容易饿，饿了就想吃烤肉，吃了更睡不着 🔄",
+  "你的枕头在偷偷生气：明明是双人床，你非要陪手机",
+  "晚安模式启动失败，检测到用户还在划屏幕",
+  "眼睛干涩吗？脑子转不动了吧？这就是熬夜的滋味",
+  "快睡！你明天还要起来想吃什么早餐呢 🍳",
+  "此时一位不知名的网友正在劝你：去 睡 觉"
+];
+const morningMessages = [
+  "☀️ 早呀！今天也要开心哦～",
+  "起床了吗？太阳晒屁股啦 ☀️",
+  "新的一天，新的饿...新的期待！",
+  "早安！记得吃早餐 🍳",
+  "今天也是充满希望的一天～",
+  "醒醒，该想想吃什么了",
+  "早！今天的你会有好事发生 ✨",
+  "一日之计在于晨，而你的晨始于打开我 😄",
+  "早起的人有虫吃，晚起的人...也有烤肉吃 🥩",
+  "早安！今天比昨天更棒了一点点",
+  "太阳出来了，你也该从被窝里出来了",
+  "新的一天，宜出门，宜吃肉，忌愁眉苦脸",
+  "早！昨晚的梦做好了，今天的事做好 💪",
+  "buttons up！又是可以创造快乐的一天",
+  "早安～今天也要对自己温柔一点",
+  "起床了吗？没起也没关系，记得来选烤肉日子 🍖"
+];
+
+function pickDaily(arr) {
+  const now = new Date();
+  const idx = (now.getFullYear() * 365 + now.getMonth() * 31 + now.getDate() + now.getHours()) % arr.length;
+  return arr[idx];
+}
+
+function showTimeToast(text, color, borderColor) {
+  let toast = document.createElement('div');
+  toast.className = 'time-toast';
+  toast.innerText = text;
+  if (color) {
+    toast.style.backgroundColor = color.bg;
+    toast.style.color = color.fg;
+    toast.style.borderColor = borderColor;
+    toast.style.boxShadow = '0 6px 24px ' + color.shadow;
+  }
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.animation = 'toastOut 0.5s ease forwards';
+    setTimeout(() => toast.remove(), 500);
+  }, 3500);
+}
+
 function checkTimeGreeting() {
   const hour = new Date().getHours();
-  const reminder = document.getElementById('nightReminder');
-  if (!reminder) return;
 
+  // 预览模式：hour >= 0 临时让白天也能看到效果
   if (hour >= 23 || hour < 5) {
-    reminder.className = 'night-reminder';
-    reminder.innerText = '🌙 已经夜深啦，早点休息吧～明天又是元气满满的一天！';
+    showTimeToast(pickDaily(nightMessages), {
+      bg: 'rgba(26, 15, 46, 0.95)',
+      fg: '#d1c4e9',
+      shadow: 'rgba(126, 87, 194, 0.25)'
+    }, '#7e57c2');
   } else if (hour >= 6 && hour < 10) {
-    reminder.className = 'night-reminder';
-    reminder.style.backgroundColor = '#e3f2fd';
-    reminder.style.color = '#1565c0';
-    reminder.style.borderColor = '#90caf9';
-    reminder.innerText = '☀️ 早呀！今天也要开心哦～';
+    showTimeToast(pickDaily(morningMessages), {
+      bg: 'rgba(227, 242, 253, 0.95)',
+      fg: '#1565c0',
+      shadow: 'rgba(21, 101, 192, 0.15)'
+    }, '#90caf9');
   }
 }
 checkTimeGreeting();
+
+// ============ 电量检测彩蛋 ============
+function checkBattery() {
+  if ('getBattery' in navigator) {
+    navigator.getBattery().then(function(battery) {
+      const level = battery.level * 100;
+      if (level < 20) {
+        setTimeout(() => {
+          showTimeToast('🔋 电量不足，急需烤肉充电！', {
+            bg: 'rgba(255, 243, 224, 0.95)',
+            fg: '#e65100',
+            shadow: 'rgba(230, 81, 0, 0.15)'
+          }, '#ffab73');
+        }, 4200);
+      } else if (level > 90) {
+        setTimeout(() => {
+          showTimeToast('🔋 满电状态，宜出门吃肉～', {
+            bg: 'rgba(232, 245, 233, 0.95)',
+            fg: '#2e7d32',
+            shadow: 'rgba(46, 125, 50, 0.15)'
+          }, '#81c784');
+        }, 4200);
+      }
+    });
+  }
+}
+checkBattery();
+
+// ============ 连续签到彩蛋 ============
+function checkStreak() {
+  const today = new Date().toDateString();
+  const lastVisit = localStorage.getItem('kaorouLastVisit');
+  let streak = parseInt(localStorage.getItem('kaorouStreak')) || 0;
+
+  if (lastVisit) {
+    const lastDate = new Date(lastVisit);
+    const diffDays = Math.floor((new Date() - lastDate) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) {
+      streak++;
+    } else if (diffDays > 1) {
+      streak = 1;
+    }
+  } else {
+    streak = 1;
+  }
+
+  localStorage.setItem('kaorouLastVisit', today);
+  localStorage.setItem('kaorouStreak', streak);
+
+  if (streak === 3) {
+    setTimeout(() => {
+      showTimeToast('连续3天打开，烤肉魂已觉醒！🔥', {
+        bg: 'rgba(255, 235, 238, 0.95)',
+        fg: '#c62828',
+        shadow: 'rgba(198, 40, 40, 0.15)'
+      }, '#ef5350');
+    }, 4800);
+  } else if (streak === 7) {
+    setTimeout(() => {
+      showTimeToast('连续7天打卡，你是真爱粉！🏆', {
+        bg: 'rgba(255, 215, 0, 0.95)',
+        fg: '#5d4037',
+        shadow: 'rgba(93, 64, 55, 0.2)'
+      }, '#ffb300');
+    }, 4800);
+  }
+}
+checkStreak();
 
 // ============ 右键彩蛋（桌面端 + 移动端长按） ============
 document.addEventListener('contextmenu', function(e) {
