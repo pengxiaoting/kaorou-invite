@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🥩hhh</title>
+<title>🥩 烤肉局邀请函</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -14,6 +14,10 @@ body {
   align-items: center;
   min-height: 100vh;
   padding: 20px;
+  transition: background-color 1s ease;
+}
+body.barbecue-night {
+  background-color: #1a0a00;
 }
 .card {
   background-color: #fff;
@@ -23,10 +27,20 @@ body {
   max-width: 480px;
   width: 100%;
   text-align: center;
+  transition: all 0.8s ease;
+  position: relative;
+  overflow: hidden;
+}
+body.barbecue-night .card {
+  background-color: #2d1a0a;
+  box-shadow: 0 8px 40px rgba(255, 87, 34, 0.3);
 }
 .emoji {
   font-size: 48px;
   animation: sizzle 2s ease-in-out infinite alternate;
+  cursor: pointer;
+  user-select: none;
+  display: inline-block;
 }
 @keyframes sizzle {
   from { transform: scale(1) rotate(-3deg); }
@@ -37,15 +51,28 @@ h1 {
   font-size: 1.8rem;
   margin-top: 10px;
   margin-bottom: 8px;
+  transition: color 0.8s ease;
+}
+body.barbecue-night h1 {
+  color: #ffab73;
+  text-shadow: 0 0 20px rgba(255, 171, 115, 0.5);
 }
 .subtitle {
   color: #999;
   font-size: 0.9rem;
   margin-bottom: 24px;
+  transition: color 0.8s ease;
+}
+body.barbecue-night .subtitle {
+  color: #c4a484;
 }
 .to-name {
   color: #c0392b;
   font-weight: bold;
+  transition: color 0.8s ease;
+}
+body.barbecue-night .to-name {
+  color: #ff8a65;
 }
 .message {
   background-color: #fff8f0;
@@ -57,6 +84,12 @@ h1 {
   font-size: 1rem;
   border-left: 4px solid #ffab73;
   text-align: left;
+  transition: all 0.8s ease;
+}
+body.barbecue-night .message {
+  background-color: #3d2310;
+  color: #ffe0b2;
+  border-left-color: #ff6b35;
 }
 .feedback {
   display: none;
@@ -93,9 +126,17 @@ h1 {
   color: #5d4037;
   position: relative;
 }
+body.barbecue-night .option-label {
+  background-color: #3d2310;
+  color: #ffe0b2;
+}
 .option-label:hover {
   background-color: #ffe0c8;
   transform: translateY(-2px);
+}
+body.barbecue-night .option-label:hover {
+  background-color: #4d2e15;
+  box-shadow: 0 0 15px rgba(255, 107, 53, 0.2);
 }
 .option-label input[type="radio"], .option-label input[type="checkbox"] {
   width: 20px;
@@ -106,8 +147,14 @@ h1 {
 .option-label.both-check {
   background-color: #f3e5f5;
 }
+body.barbecue-night .option-label.both-check {
+  background-color: #2d1a3a;
+}
 .option-label.both-check:hover {
   background-color: #e1bee7;
+}
+body.barbecue-night .option-label.both-check:hover {
+  background-color: #3d2250;
 }
 .confirm-btn {
   margin-top: 24px;
@@ -120,13 +167,100 @@ h1 {
   cursor: pointer;
   transition: all 0.3s ease;
 }
+body.barbecue-night .confirm-btn {
+  background-color: #ff5722;
+  box-shadow: 0 0 20px rgba(255, 87, 34, 0.4);
+}
 .confirm-btn:hover {
   background-color: #b25918;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(210, 105, 30, 0.3);
 }
+body.barbecue-night .confirm-btn:hover {
+  background-color: #e64a19;
+  box-shadow: 0 6px 25px rgba(255, 87, 34, 0.6);
+}
 .confirm-btn:active {
   transform: translateY(0);
+}
+
+/* Konami Code 彩蛋粒子样式 */
+.particle {
+  position: fixed;
+  font-size: 24px;
+  pointer-events: none;
+  animation: fall linear forwards;
+  z-index: 9999;
+}
+@keyframes fall {
+  0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+/* 自定义右键菜单样式 */
+.custom-context {
+  position: fixed;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 12px 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  z-index: 9999;
+  font-size: 0.9rem;
+  color: #d2691e;
+  animation: popIn 0.3s ease;
+  pointer-events: none;
+}
+body.barbecue-night .custom-context {
+  background-color: #3d2310;
+  color: #ffab73;
+  box-shadow: 0 4px 20px rgba(255,87,34,0.3);
+}
+
+/* 深夜烧烤模式火焰粒子 */
+.fire-particle {
+  position: fixed;
+  font-size: 28px;
+  pointer-events: none;
+  animation: rise linear infinite;
+  z-index: 9998;
+}
+@keyframes rise {
+  0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-100px) scale(1.2); opacity: 0; }
+}
+
+/* 点击火焰效果 */
+.fire-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid #ff5722;
+  animation: fireRing 0.6s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes fireRing {
+  0% { width: 0; height: 0; opacity: 1; }
+  100% { width: 120px; height: 120px; opacity: 0; transform: translate(-50%, -50%); }
+}
+
+/* 深夜模式提示文字 */
+.night-hint {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(45, 26, 10, 0.9);
+  color: #ffab73;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  animation: slideUp 0.5s ease;
+  z-index: 9997;
+}
+@keyframes slideUp {
+  from { transform: translateX(-50%) translateY(30px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
 </style>
 </head>
@@ -166,6 +300,144 @@ h1 {
 </div>
 
 <script>
+// ============ 右键彩蛋 ============
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+  showCustomContext(e.clientX, e.clientY);
+});
+
+function showCustomContext(x, y) {
+  let old = document.querySelector('.custom-context');
+  if (old) old.remove();
+
+  let div = document.createElement('div');
+  div.className = 'custom-context';
+  div.style.left = x + 'px';
+  div.style.top = y + 'px';
+  div.innerText = '复制我干嘛，快去约烤肉！🍖';
+  document.body.appendChild(div);
+
+  setTimeout(() => div.remove(), 2000);
+}
+
+// ============ Konami Code 彩蛋 ============
+let konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiIndex = 0;
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === konamiCode[konamiIndex]) {
+    konamiIndex++;
+    if (konamiIndex === konamiCode.length) {
+      triggerKonami();
+      konamiIndex = 0;
+    }
+  } else {
+    konamiIndex = 0;
+  }
+});
+
+function triggerKonami() {
+  const emojis = ['🥩','🔥','🍖','🍗','🍢','🌭'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      let p = document.createElement('div');
+      p.className = 'particle';
+      p.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.animationDuration = (2 + Math.random() * 3) + 's';
+      p.style.fontSize = (18 + Math.random() * 24) + 'px';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 5000);
+    }, i * 80);
+  }
+
+  let feedback = document.querySelector('#feedback');
+  feedback.style.display = 'block';
+  feedback.style.backgroundColor = '#fff8e1';
+  feedback.style.color = '#e65100';
+  feedback.innerText = '🔓 神秘代码已激活！烤肉雨来啦！';
+  setTimeout(() => {
+    if (feedback.innerText.includes('神秘代码')) feedback.style.display = 'none';
+  }, 3000);
+}
+
+// ============ 疯狂点击 → 深夜烧烤模式 ============
+let clickCount = 0;
+let clickTimer = null;
+let nightMode = false;
+
+document.querySelector('.emoji').addEventListener('click', function(e) {
+  clickCount++;
+
+  // 火焰扩散效果
+  let ring = document.createElement('div');
+  ring.className = 'fire-ring';
+  let rect = e.target.getBoundingClientRect();
+  ring.style.left = (rect.left + rect.width/2) + 'px';
+  ring.style.top = (rect.top + rect.height/2) + 'px';
+  document.body.appendChild(ring);
+  setTimeout(() => ring.remove(), 600);
+
+  clearTimeout(clickTimer);
+  clickTimer = setTimeout(() => { clickCount = 0; }, 1500);
+
+  if (clickCount >= 5 && !nightMode) {
+    activateNightMode();
+    clickCount = 0;
+  }
+});
+
+function activateNightMode() {
+  nightMode = true;
+  document.body.classList.add('barbecue-night');
+
+  // 火焰粒子向上飘
+  const fires = ['🔥','✨','🔆'];
+  for (let i = 0; i < 20; i++) {
+    setTimeout(() => {
+      let f = document.createElement('div');
+      f.className = 'fire-particle';
+      f.innerText = fires[Math.floor(Math.random() * fires.length)];
+      f.style.left = Math.random() * 100 + 'vw';
+      f.style.animationDuration = (3 + Math.random() * 4) + 's';
+      f.style.fontSize = (20 + Math.random() * 30) + 'px';
+      document.body.appendChild(f);
+    }, i * 200);
+  }
+
+  let feedback = document.querySelector('#feedback');
+  feedback.style.display = 'block';
+  feedback.style.backgroundColor = '#3e2723';
+  feedback.style.color = '#ffcc80';
+  feedback.innerText = '🌙 深夜烧烤模式已开启！火势太猛了！';
+
+  // 显示提示
+  let hint = document.createElement('div');
+  hint.className = 'night-hint';
+  hint.innerText = '再点一次emoji可关闭深夜模式 🔥';
+  hint.style.display = 'block';
+  document.body.appendChild(hint);
+  setTimeout(() => hint.remove(), 4000);
+}
+
+// 点击关闭深夜模式
+document.querySelector('.emoji').addEventListener('dblclick', function() {
+  if (nightMode) {
+    document.body.classList.remove('barbecue-night');
+    document.querySelectorAll('.fire-particle').forEach(f => f.remove());
+    nightMode = false;
+    let feedback = document.querySelector('#feedback');
+    feedback.style.display = 'block';
+    feedback.style.backgroundColor = '#e8f5e9';
+    feedback.style.color = '#2e7d32';
+    feedback.innerText = '☀️ 已回到白天，继续选日子吧～';
+    setTimeout(() => { if (feedback.innerText.includes('回到白天')) feedback.style.display = 'none'; }, 3000);
+  }
+});
+
+// ============ 原始选择逻辑 ============
+let confirmClicks = 0;
+
 function submitChoice() {
   const radios = document.querySelectorAll('input[name="day"]');
   const both = document.querySelector('#both');
@@ -174,19 +446,23 @@ function submitChoice() {
   radios.forEach(r => { if (r.checked) selected.push(r.value); });
   if (both.checked) selected.push('我全都要');
 
+  confirmClicks++;
+
   if (selected.length === 0) {
     feedback.style.display = 'block';
     feedback.style.backgroundColor = '#ffebee';
     feedback.style.color = '#c62828';
-    feedback.textContent = '不选一个日子就……我只能对着空气烤肉了 🥺';
+    feedback.innerText = '不选一个日子就……我只能对着空气烤肉了 🥺';
   } else {
     feedback.style.display = 'block';
     feedback.style.backgroundColor = '#e8f5e9';
     feedback.style.color = '#2e7d32';
     if (selected.includes('我全都要')) {
-      feedback.textContent = '好耶！成年人不做选择，全都要！🥩🥩🥩 收到你的回复啦～';
+      feedback.innerText = '好耶！成年人不做选择，全都要！🥩🥩🥩 收到你的回复啦～';
+    } else if (confirmClicks > 2) {
+      feedback.innerText = '别点了！已经在生火🔥了！急啥！';
     } else {
-      feedback.textContent = '收到！「' + selected.join('、') + '」已预订成功！期待烤肉局 🍖🍻';
+      feedback.innerText = '收到！「' + selected.join('、') + '」已预订成功！期待烤肉局 🍖🍻';
     }
   }
 }
