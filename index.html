@@ -80,6 +80,48 @@ body.barbecue-night .subtitle {
 body.barbecue-night .to-name {
   color: #ff8a65;
 }
+/* 夜间限定早睡提醒 */
+.night-reminder {
+  background-color: #ede7f6;
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 14px;
+  color: #4527a0;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1.5px dashed #b39ddb;
+  animation: popIn 0.6s ease;
+  transition: all 0.8s ease;
+}
+body.barbecue-night .night-reminder {
+  background-color: #1a0f2e;
+  color: #d1c4e9;
+  border-color: #7e57c2;
+}
+
+/* 每日运势签 */
+.daily-fortune {
+  background-color: #fff3e0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 14px;
+  color: #e65100;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1.5px dashed #ffcc80;
+  position: relative;
+  transition: all 0.8s ease;
+}
+body.barbecue-night .daily-fortune {
+  background-color: #2d1a0a;
+  color: #ffab73;
+  border-color: #ff6b35;
+}
+.daily-fortune::before {
+  content: '📅';
+  margin-right: 6px;
+}
+
 .message {
   background-color: #fff8f0;
   border-radius: 12px;
@@ -371,6 +413,10 @@ body.barbecue-night .custom-context {
 <h1>烤肉局邀请函</h1>
 <p class="subtitle">From: hygee / To: <span class="to-name">dscad</span></p>
 
+<div id="nightReminder"></div>
+
+<div class="daily-fortune" id="dailyFortune">今日运势加载中…</div>
+
 <div class="message">
 嗨～dscad！
 这周末要不要一起吃烤肉呀
@@ -402,6 +448,71 @@ body.barbecue-night .custom-context {
 <div class="hidden-fire" title="试试点我～">🔥</div>
 
 <script>
+// ============ 每日烤肉签 ============
+const dailyMessages = [
+  "今日运势：大吉，宜见面 ✨",
+  "你比昨天更棒了，继续保持！💪",
+  "今天的你，闪闪发光 🌟",
+  "别焦虑，一切都会顺利的",
+  "星象显示：今天适合做任何决定 🌙",
+  "宜出门走走，忌闷在家里",
+  "算了一卦，今天会有小惊喜 🎉",
+  "别忙了，偶尔放空一下也不错",
+  "今天的你，值得被温柔对待",
+  "运势大吉，好事正在路上 🍀",
+  "宜和喜欢的人待在一起",
+  "今日心情签：随心所欲，顺其自然",
+  "星星说：你会遇到很好的事 ✨",
+  "能量不足？充会电就好了 🔋",
+  "今日宜微笑，忌皱眉头",
+  "运气正在悄悄帮你 🪄",
+  "别纠结了，跟着感觉走",
+  "今日幸运色：让你开心的颜色",
+  "心情预报：多云转晴 ☀️",
+  "宜和 dscad 约一顿香喷喷的烤肉 🥩",
+  "今天不赶时间，慢慢来",
+  "幸运指数：🌟🌟🌟🌟🌟",
+  "宇宙发来信号：你很重要 🌌",
+  "今日宜尝试新事物，忌一成不变",
+  "预测：今天会有值得纪念的时刻",
+  "签文：用心生活，好运自来",
+  "宜笑，宜吃，宜见面 🎈",
+  "运势小助手：对自己好一点",
+  "今日主题词：轻松自在～",
+  "星盘转动，好消息在赶来 ✨",
+  "最后提醒：你已经很棒了！"
+];
+
+function showDailyFortune() {
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  const dateStr = month + '月' + day + '日';
+  const index = (now.getFullYear() * 365 + now.getMonth() * 31 + now.getDate()) % dailyMessages.length;
+  const el = document.getElementById('dailyFortune');
+  if (el) el.innerText = '📅 ' + dateStr + ' · ' + dailyMessages[index];
+}
+showDailyFortune();
+
+// ============ 早晚安问候 ============
+function checkTimeGreeting() {
+  const hour = new Date().getHours();
+  const reminder = document.getElementById('nightReminder');
+  if (!reminder) return;
+
+  if (hour >= 23 || hour < 5) {
+    reminder.className = 'night-reminder';
+    reminder.innerText = '🌙 已经夜深啦，早点休息吧～明天又是元气满满的一天！';
+  } else if (hour >= 6 && hour < 10) {
+    reminder.className = 'night-reminder';
+    reminder.style.backgroundColor = '#e3f2fd';
+    reminder.style.color = '#1565c0';
+    reminder.style.borderColor = '#90caf9';
+    reminder.innerText = '☀️ 早呀！今天也要开心哦～';
+  }
+}
+checkTimeGreeting();
+
 // ============ 右键彩蛋（桌面端 + 移动端长按） ============
 document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
