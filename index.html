@@ -549,10 +549,13 @@ body.barbecue-night .guestbook-msg small {
 <div class="feedback" id="feedback"></div>
 
 <div class="guestbook">
-  <div class="guestbook-label">💬 给 hygee 的悄悄话：</div>
-  <textarea class="guestbook-input" id="guestInput" rows="2" placeholder="例如：我要吃五花！"></textarea>
-  <button class="guestbook-btn" onclick="saveGuestMsg()">发送留言</button>
-  <div id="guestMsgBox"></div>
+  <div class="guestbook-label">💬 公开留言墙</div>
+  <p style="color: rgba(255,255,255,0.6);font-size:12px;margin-bottom:10px;">所有人可见，直接输入就能发～</p>
+  <div id="publicMsgBox" style="max-height: 220px; overflow-y: auto; margin-bottom: 12px;">加载中...</div>
+  <div style="display:flex;gap:8px;">
+    <textarea id="guestInput" rows="2" placeholder="想说点什么..." style="flex:1;border-radius:10px;border:none;padding:10px;font-family:inherit;resize:none;outline:none;"></textarea>
+    <button class="guestbook-btn" onclick="postGuestMsg()" style="flex-shrink:0;align-self:stretch;">发送</button>
+  </div>
 </div>
 </div>
 
@@ -608,36 +611,25 @@ showDailyFortune();
 // ============ 周末倒计时 ============
 function updateCountdown() {
   const now = new Date();
-  let target = new Date();
   const day = now.getDay(); // 0=周日, 6=周六
 
-  if (day === 6 && now.getHours() >= 0) {
-    // 周六到了，找周日
-    target.setDate(now.getDate() + 1);
-    target.setHours(0, 0, 0, 0);
-  } else if (day === 0) {
-    // 周日，找下周一不对，找这周六已过了...
-    // 直接找下一个周六
-    target.setDate(now.getDate() + 6);
-    target.setHours(0, 0, 0, 0);
-  } else {
-    // 周一到周五，找本周六
-    target.setDate(now.getDate() + (6 - day));
-    target.setHours(0, 0, 0, 0);
-  }
-
-  const diff = target - now;
-  if (diff <= 0) {
-    document.getElementById('countdown').innerText = '⏰ 就是今天！冲鸭！';
+  // 已经是周末，直接撒花
+  if (day === 6 || day === 0) {
+    document.getElementById('countdown').innerText = '⏰ 就是今天！冲鸭！周末愉快～';
     return;
   }
 
+  let target = new Date(now);
+  target.setDate(now.getDate() + (6 - day));
+  target.setHours(0, 0, 0, 0);
+
+  const diff = target - now;
   const d = Math.floor(diff / (1000 * 60 * 60 * 24));
   const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const s = Math.floor((diff % (1000 * 60)) / 1000);
 
-  let text = '⏰ 距离' + (day === 6 ? '周日' : '周六') + '还有 ';
+  let text = '⏰ 距离周六还有 ';
   if (d > 0) text += d + '天 ';
   text += h + '小时 ' + m + '分 ' + s + '秒';
   document.getElementById('countdown').innerText = text;
@@ -799,37 +791,89 @@ function checkStreak() {
 }
 checkStreak();
 
-// ============ 留言板 ============
-function saveGuestMsg() {
-  const input = document.getElementById('guestInput');
-  const text = input.value.trim();
-  if (!text) return;
-
-  const list = JSON.parse(localStorage.getItem('kaorouGuestbook') || '[]');
-  const time = new Date().toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  list.push({ text: text, time: time });
-  localStorage.setItem('kaorouGuestbook', JSON.stringify(list));
-  input.value = '';
-  loadGuestMsg();
-}
-
-function loadGuestMsg() {
-  const box   = document.getElementById('guestMsgBox');
-  const list  = JSON.parse(localStorage.getItem('kaorouGuestbook') || '[]');
-  if (list.length === 0) { box.innerHTML = ''; return; }
-
-  let html = '';
-  list.slice(-30).reverse().forEach(function(item) {
-    html += '<div class="guest-entry"><div class="guest-text">' + escapeHtml(item.text) + '</div><div class="guest-time">' + item.time + '</div></div>';
-  });
-  box.innerHTML = html;
-}
+// ============ 公开留言墙 (GitHub Issues) ============
+// 配置步骤（只需一次，约2分钟）：
+// 1) 浏览器打开 https://github.com/settings/personal-access-tokens/new
+// 2) Token name 填 kaorou-guestbook，Expiration 选 90 days
+// 3) Repository access → 选 "Only select repositories"，勾选 pengxiaoting/kaorou-invite
+// 4) Permissions → Repository permissions → Issues → 选 "Read and Write"
+// 5) 点 Generate token，复制生成的字符串（ghp_... 或 github_pat_...）
+// 6) 把下面的 YOUR_GITHUB_TOKEN 整行替换掉（保留两边单引号）
+const GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN';
+const REPO_OWNER = 'pengxiaoting';
+const REPO_NAME = 'kaorou-invite';
 
 function escapeHtml(text) {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-loadGuestMsg();
+async function loadPublicGuestbook() {
+  const box = document.getElementById('publicMsgBox');
+  try {
+    const res = await fetch('https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/issues?state=open&sort=created&direction=desc&per_page=30');
+    if (!res.ok) throw new Error('GitHub ' + res.status);
+    const issues = await res.json();
+
+    if (issues.length === 0) {
+      box.innerHTML = '<div style="color:rgba(255,255,255,0.5);text-align:center;font-size:14px;padding:16px 0;">还没有留言，快来抢沙发～</div>';
+      return;
+    }
+
+    box.innerHTML = issues.map(function(issue) {
+      const time = new Date(issue.created_at).toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return '<div class="guestbook-msg">' +
+        '<div>' + escapeHtml(issue.title) + '</div>' +
+        (issue.body ? '<div style="margin-top:4px;font-size:0.85rem;">' + escapeHtml(issue.body) + '</div>' : '') +
+        '<small>' + time + ' · ' + escapeHtml(issue.user.login) + '</small>' +
+        '</div>';
+    }).join('');
+  } catch (e) {
+    console.log('留言墙加载失败', e);
+    box.innerHTML = '<div style="color:rgba(255,255,255,0.5);text-align:center;font-size:14px;padding:16px 0;">暂时无法加载留言，请检查网络</div>';
+  }
+}
+
+async function postGuestMsg() {
+  const input = document.getElementById('guestInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  if (GITHUB_TOKEN === 'YOUR_GITHUB_TOKEN') {
+    alert('留言墙还没配置好，请按代码里的步骤设置 GITHUB_TOKEN ～');
+    return;
+  }
+
+  // 本地限流
+  const lastPost = localStorage.getItem('kaorouLastPost');
+  if (lastPost && Date.now() - parseInt(lastPost) < 15000) {
+    alert('发送太快了，歇一会儿再发～');
+    return;
+  }
+
+  try {
+    const res = await fetch('https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/issues', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + GITHUB_TOKEN,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title: text.length > 60 ? text.slice(0, 60) + '…' : text,
+        body: text + '\n\n> 来自烤肉邀请函留言墙 🥩',
+        labels: ['guestbook']
+      })
+    });
+    if (!res.ok) throw new Error('GitHub ' + res.status);
+    localStorage.setItem('kaorouLastPost', Date.now().toString());
+    input.value = '';
+    loadPublicGuestbook();
+  } catch (e) {
+    alert('发送失败：' + e.message);
+  }
+}
+
+loadPublicGuestbook();
 
 // ============ 右键彩蛋（桌面端 + 移动端长按） ============
 document.addEventListener('contextmenu', function(e) {
