@@ -80,7 +80,6 @@ body.barbecue-night .subtitle {
 body.barbecue-night .to-name {
   color: #ff8a65;
 }
-/* 时间问候弹窗 */
 .time-toast {
   position: fixed;
   top: 20px;
@@ -106,8 +105,6 @@ body.barbecue-night .to-name {
   0% { transform: translateX(-50%) translateY(0); opacity: 1; }
   100% { transform: translateX(-50%) translateY(-60px); opacity: 0; }
 }
-
-/* 每日运势签 */
 .daily-fortune {
   background-color: #fff3e0;
   border-radius: 10px;
@@ -129,7 +126,6 @@ body.barbecue-night .daily-fortune {
   content: '✨';
   margin-right: 6px;
 }
-
 .message {
   background-color: #fff8f0;
   border-radius: 12px;
@@ -239,8 +235,6 @@ body.barbecue-night .confirm-btn:hover {
 .confirm-btn:active {
   transform: translateY(0);
 }
-
-/* Konami Code 彩蛋粒子样式 */
 .particle {
   position: fixed;
   font-size: 24px;
@@ -252,8 +246,6 @@ body.barbecue-night .confirm-btn:hover {
   0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
   100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
-
-/* 自定义右键菜单样式 */
 .custom-context {
   position: fixed;
   background-color: #fff;
@@ -271,8 +263,6 @@ body.barbecue-night .custom-context {
   color: #ffab73;
   box-shadow: 0 4px 20px rgba(255,87,34,0.3);
 }
-
-/* 深夜烧烤模式火焰粒子 */
 .fire-particle {
   position: fixed;
   font-size: 28px;
@@ -285,8 +275,6 @@ body.barbecue-night .custom-context {
   50% { opacity: 1; }
   100% { transform: translateY(-100px) scale(1.2); opacity: 0; }
 }
-
-/* 点击火焰效果 */
 .fire-ring {
   position: absolute;
   border-radius: 50%;
@@ -298,8 +286,6 @@ body.barbecue-night .custom-context {
   0% { width: 0; height: 0; opacity: 1; }
   100% { width: 120px; height: 120px; opacity: 0; transform: translate(-50%, -50%); }
 }
-
-/* 深夜模式提示文字 */
 .night-hint {
   display: none;
   position: fixed;
@@ -318,7 +304,6 @@ body.barbecue-night .custom-context {
   from { transform: translateX(-50%) translateY(30px); opacity: 0; }
   to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
-/* 移动端适配 */
 @media (max-width: 480px) {
   .card {
     padding: 28px 20px;
@@ -349,8 +334,6 @@ body.barbecue-night .custom-context {
     gap: 10px;
   }
 }
-
-/* 加油祝福彩蛋的隐藏小火苗 */
 .hidden-fire {
   position: fixed;
   bottom: 16px;
@@ -374,8 +357,6 @@ body.barbecue-night .custom-context {
   0%, 100% { opacity: 0.45; filter: grayscale(0.3) drop-shadow(0 0 2px rgba(255,87,34,0.3)); }
   50% { opacity: 0.7; filter: grayscale(0) drop-shadow(0 0 6px rgba(255,87,34,0.5)); }
 }
-
-/* 祝福横幅 */
 .wish-banner {
   position: fixed;
   top: 50%;
@@ -398,8 +379,6 @@ body.barbecue-night .custom-context {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
   100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
-
-/* 奖杯粒子 */
 .trophy-particle {
   position: fixed;
   font-size: 26px;
@@ -412,10 +391,6 @@ body.barbecue-night .custom-context {
   15% { opacity: 1; }
   100% { transform: translateY(-90vh) scale(1.1) rotate(15deg); opacity: 0; }
 }
-
-
-
-
 </style>
 </head>
 <body>
@@ -459,7 +434,6 @@ body.barbecue-night .custom-context {
 <div class="hidden-fire" title="试试点我～">🔥</div>
 
 <script>
-// ============ 每日烤肉签 ============
 const dailyMessages = [
   "今日运势：大吉，宜见面 ✨",
   "你比昨天更棒了，继续保持！💪",
@@ -501,11 +475,10 @@ function showDailyFortune() {
   const dateStr = month + '月' + day + '日';
   const index = (now.getFullYear() * 365 + now.getMonth() * 31 + now.getDate()) % dailyMessages.length;
   const el = document.getElementById('dailyFortune');
-  if (el) el.innerText = '📅 ' + dateStr + ' · ' + dailyMessages[index];
+  if (el) el.innerText = ' ' + dateStr + ' · ' + dailyMessages[index];
 }
 showDailyFortune();
 
-// ============ 早晚安问候弹窗 ============
 const nightMessages = [
   "又被我发现了，还不睡，还不睡！",
   "凌晨了朋友，你的发际线还好吗 👀",
@@ -573,8 +546,6 @@ function showTimeToast(text, color, borderColor) {
 
 function checkTimeGreeting() {
   const hour = new Date().getHours();
-
-  // 预览模式：hour >= 0 临时让白天也能看到效果
   if (hour >= 23 || hour < 5) {
     showTimeToast(pickDaily(nightMessages), {
       bg: 'rgba(26, 15, 46, 0.95)',
@@ -591,7 +562,6 @@ function checkTimeGreeting() {
 }
 checkTimeGreeting();
 
-// ============ 电量检测彩蛋 ============
 function checkBattery() {
   if ('getBattery' in navigator) {
     navigator.getBattery().then(function(battery) {
@@ -618,13 +588,11 @@ function checkBattery() {
 }
 checkBattery();
 
-// ============ 右键彩蛋（桌面端 + 移动端长按） ============
 document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
   showCustomContext(e.clientX, e.clientY);
 });
 
-// 移动端长按模拟右键（按住0.6秒触发）
 let touchTimer = null;
 let touchStartPos = null;
 document.addEventListener('touchstart', function(e) {
@@ -653,7 +621,6 @@ function showCustomContext(x, y) {
   div.innerText = '复制我干嘛，快去约烤肉！🍖';
   document.body.appendChild(div);
 
-  // 防止菜单超出屏幕
   let rect = div.getBoundingClientRect();
   if (rect.right > window.innerWidth) div.style.left = (window.innerWidth - rect.width - 10) + 'px';
   if (rect.bottom > window.innerHeight) div.style.top = (window.innerHeight - rect.height - 10) + 'px';
@@ -661,7 +628,6 @@ function showCustomContext(x, y) {
   setTimeout(() => div.remove(), 2000);
 }
 
-// ============ Konami Code 彩蛋 ============
 let konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
 let konamiIndex = 0;
 
@@ -728,7 +694,6 @@ function triggerStarRain() {
   }, 3000);
 }
 
-// 手机版：连续点击标题 7 次触发星空雨
 let titleClickCount = 0;
 let titleClickTimer = null;
 document.querySelector('h1').addEventListener('click', function() {
@@ -741,7 +706,6 @@ document.querySelector('h1').addEventListener('click', function() {
   }
 });
 
-// ============ 疯狂点击 → 深夜烧烤模式 ============
 let clickCount = 0;
 let clickTimer = null;
 let nightMode = false;
@@ -749,7 +713,6 @@ let nightMode = false;
 document.querySelector('.emoji').addEventListener('click', function(e) {
   clickCount++;
 
-  // 火焰扩散效果
   let ring = document.createElement('div');
   ring.className = 'fire-ring';
   let rect = e.target.getBoundingClientRect();
@@ -771,7 +734,6 @@ function activateNightMode() {
   nightMode = true;
   document.body.classList.add('barbecue-night');
 
-  // 火焰粒子向上飘
   const fires = ['🔥','✨','🔆'];
   for (let i = 0; i < 20; i++) {
     setTimeout(() => {
@@ -791,7 +753,6 @@ function activateNightMode() {
   feedback.style.color = '#ffcc80';
   feedback.innerText = '🌙 深夜烧烤模式已开启！火势太猛了！';
 
-  // 显示提示
   let hint = document.createElement('div');
   hint.className = 'night-hint';
   hint.innerText = '再点一次emoji可关闭深夜模式 🔥';
@@ -800,7 +761,6 @@ function activateNightMode() {
   setTimeout(() => hint.remove(), 4000);
 }
 
-// 点击关闭深夜模式
 document.querySelector('.emoji').addEventListener('dblclick', function() {
   if (nightMode) {
     document.body.classList.remove('barbecue-night');
@@ -815,14 +775,12 @@ document.querySelector('.emoji').addEventListener('dblclick', function() {
   }
 });
 
-// ============ 加油祝福彩蛋 ============
 let wishTriggered = false;
 
 document.querySelector('.hidden-fire').addEventListener('click', function(e) {
   if (wishTriggered) return;
   wishTriggered = true;
 
-  // 奖杯和星星粒子从底部升起
   const trophies = ['🏆','✨','🥇','💪','🎉','🌟'];
   for (let i = 0; i < 30; i++) {
     setTimeout(() => {
@@ -837,7 +795,6 @@ document.querySelector('.hidden-fire').addEventListener('click', function(e) {
     }, i * 60);
   }
 
-  // 弹出祝福横幅
   let banner = document.createElement('div');
   banner.className = 'wish-banner';
   banner.innerHTML = '🌙 周末比赛顺利，你是最蚌的！';
@@ -847,7 +804,6 @@ document.querySelector('.hidden-fire').addEventListener('click', function(e) {
   setTimeout(() => wishTriggered = false, 5000);
 });
 
-// ============ 原始选择逻辑 ============
 let confirmClicks = 0;
 
 function submitChoice() {
