@@ -412,101 +412,9 @@ body.barbecue-night .custom-context {
   15% { opacity: 1; }
   100% { transform: translateY(-90vh) scale(1.1) rotate(15deg); opacity: 0; }
 }
-/* 倒计时 */
-.countdown {
-  background-color: #e3f2fd;
-  border-radius: 10px;
-  padding: 10px 16px;
-  margin-bottom: 14px;
-  color: #1565c0;
-  font-size: 0.9rem;
-  text-align: center;
-  border: 1.5px solid #90caf9;
-  transition: all 0.8s ease;
-}
-body.barbecue-night .countdown {
-  background-color: #0d1b2a;
-  color: #82b1ff;
-  border-color: #1565c0;
-}
 
-/* 留言板 */
-.guestbook {
-  margin-top: 20px;
-  text-align: left;
-}
-.guestbook-label {
-  font-size: 0.85rem;
-  color: #999;
-  margin-bottom: 8px;
-}
-body.barbecue-night .guestbook-label {
-  color: #bbada5;
-}
-.guestbook-input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  border: 2px solid #ffcc80;
-  background-color: #fff8f0;
-  color: #5d4037;
-  font-size: 0.95rem;
-  font-family: inherit;
-  resize: none;
-  outline: none;
-  transition: all 0.3s ease;
-}
-.guestbook-input:focus {
-  border-color: #d2691e;
-  background-color: #fff;
-}
-body.barbecue-night .guestbook-input {
-  background-color: #3d2310;
-  color: #ffe0b2;
-  border-color: #ff6b35;
-}
-body.barbecue-night .guestbook-input:focus {
-  background-color: #2d1a0a;
-}
-.guestbook-btn {
-  margin-top: 10px;
-  padding: 10px 24px;
-  font-size: 0.95rem;
-  color: white;
-  background-color: #ffab73;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.guestbook-btn:hover {
-  background-color: #ff8a50;
-}
-.guestbook-msg {
-  margin-top: 14px;
-  background-color: #fff3e0;
-  border-radius: 12px;
-  padding: 14px;
-  color: #e65100;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  border-left: 3px solid #ffab73;
-  animation: popIn 0.4s ease;
-}
-body.barbecue-night .guestbook-msg {
-  background-color: #2d1a0a;
-  color: #ffcc80;
-  border-left-color: #ff6b35;
-}
-.guestbook-msg small {
-  display: block;
-  margin-top: 6px;
-  font-size: 0.75rem;
-  color: #b8860b;
-}
-body.barbecue-night .guestbook-msg small {
-  color: #d7ccc8;
-}
+
+
 
 </style>
 </head>
@@ -518,8 +426,6 @@ body.barbecue-night .guestbook-msg small {
 <p class="subtitle">From: hygee / To: <span class="to-name">dscad</span></p>
 
 <div class="daily-fortune" id="dailyFortune">今日运势加载中…</div>
-
-<div class="countdown" id="countdown">⏰ 计算中…</div>
 
 <div class="message">
 嗨～dscad！
@@ -548,15 +454,6 @@ body.barbecue-night .guestbook-msg small {
 
 <div class="feedback" id="feedback"></div>
 
-<div class="guestbook">
-  <div class="guestbook-label">💬 公开留言墙</div>
-  <p style="color: rgba(255,255,255,0.6);font-size:12px;margin-bottom:10px;">所有人可见，直接输入就能发～</p>
-  <div id="publicMsgBox" style="max-height: 220px; overflow-y: auto; margin-bottom: 12px;">加载中...</div>
-  <div style="display:flex;gap:8px;">
-    <textarea id="guestInput" rows="2" placeholder="想说点什么..." style="flex:1;border-radius:10px;border:none;padding:10px;font-family:inherit;resize:none;outline:none;"></textarea>
-    <button class="guestbook-btn" onclick="postGuestMsg()" style="flex-shrink:0;align-self:stretch;">发送</button>
-  </div>
-</div>
 </div>
 
 <div class="hidden-fire" title="试试点我～">🔥</div>
@@ -597,6 +494,16 @@ const dailyMessages = [
   "最后提醒：你已经很棒了！"
 ];
 
+function showDailyFortune() {
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  const dateStr = month + '月' + day + '日';
+  const index = (now.getFullYear() * 365 + now.getMonth() * 31 + now.getDate()) % dailyMessages.length;
+  const el = document.getElementById('dailyFortune');
+  if (el) el.innerText = '📅 ' + dateStr + ' · ' + dailyMessages[index];
+}
+showDailyFortune();
 
 // ============ 早晚安问候弹窗 ============
 const nightMessages = [
@@ -710,49 +617,6 @@ function checkBattery() {
   }
 }
 checkBattery();
-
-// ============ 连续签到彩蛋 ============
-function checkStreak() {
-  const today = new Date().toDateString();
-  const lastVisit = localStorage.getItem('kaorouLastVisit');
-  let streak = parseInt(localStorage.getItem('kaorouStreak')) || 0;
-
-  if (lastVisit) {
-    const lastDate = new Date(lastVisit);
-    const diffDays = Math.floor((new Date() - lastDate) / (1000 * 60 * 60 * 24));
-    if (diffDays === 1) {
-      streak++;
-    } else if (diffDays > 1) {
-      streak = 1;
-    }
-  } else {
-    streak = 1;
-  }
-
-  localStorage.setItem('kaorouLastVisit', today);
-  localStorage.setItem('kaorouStreak', streak);
-
-  if (streak === 3) {
-    setTimeout(() => {
-      showTimeToast('连续3天打开，烤肉魂已觉醒！🔥', {
-        bg: 'rgba(255, 235, 238, 0.95)',
-        fg: '#c62828',
-        shadow: 'rgba(198, 40, 40, 0.15)'
-      }, '#ef5350');
-    }, 4800);
-  } else if (streak === 7) {
-    setTimeout(() => {
-      showTimeToast('连续7天打卡，你是真爱粉！🏆', {
-        bg: 'rgba(255, 215, 0, 0.95)',
-        fg: '#5d4037',
-        shadow: 'rgba(93, 64, 55, 0.2)'
-      }, '#ffb300');
-    }, 4800);
-  }
-}
-checkStreak();
-
-
 
 // ============ 右键彩蛋（桌面端 + 移动端长按） ============
 document.addEventListener('contextmenu', function(e) {
