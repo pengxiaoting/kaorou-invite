@@ -451,7 +451,33 @@ function triggerKonami() {
   }, 3000);
 }
 
-// 手机版：连续点击标题 7 次也触发烤肉雨
+function triggerStarRain() {
+  const emojis = ['🌙','⭐','🌟','✨','💫','🪐'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      let p = document.createElement('div');
+      p.className = 'particle';
+      p.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.animationDuration = (2.5 + Math.random() * 3.5) + 's';
+      p.style.fontSize = (20 + Math.random() * 28) + 'px';
+      p.style.textShadow = '0 0 8px rgba(255,255,200,0.8)';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 6000);
+    }, i * 70);
+  }
+
+  let feedback = document.querySelector('#feedback');
+  feedback.style.display = 'block';
+  feedback.style.backgroundColor = '#ede7f6';
+  feedback.style.color = '#4527a0';
+  feedback.innerText = '🌌 星空已为你点亮！';
+  setTimeout(() => {
+    if (feedback.innerText.includes('星空')) feedback.style.display = 'none';
+  }, 3000);
+}
+
+// 手机版：连续点击标题 7 次触发星空雨
 let titleClickCount = 0;
 let titleClickTimer = null;
 document.querySelector('h1').addEventListener('click', function() {
@@ -459,7 +485,7 @@ document.querySelector('h1').addEventListener('click', function() {
   clearTimeout(titleClickTimer);
   titleClickTimer = setTimeout(() => { titleClickCount = 0; }, 1500);
   if (titleClickCount >= 7) {
-    triggerKonami();
+    triggerStarRain();
     titleClickCount = 0;
   }
 });
