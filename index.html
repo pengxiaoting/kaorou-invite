@@ -11,9 +11,12 @@ body {
   background-color: #fef6f0;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 100vh;
+  min-height: 100dvh;
   padding: 20px;
+  padding-bottom: 80px;
+  overflow-y: auto;
   transition: background-color 1s ease;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -265,6 +268,38 @@ body.barbecue-night .custom-context {
   from { transform: translateX(-50%) translateY(30px); opacity: 0; }
   to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
+/* 移动端适配 */
+@media (max-width: 480px) {
+  .card {
+    padding: 28px 20px;
+    margin-top: 10px;
+  }
+  .emoji {
+    font-size: 42px;
+  }
+  h1 {
+    font-size: 1.55rem;
+  }
+  .subtitle {
+    font-size: 0.85rem;
+  }
+  .message {
+    font-size: 0.95rem;
+    padding: 14px 14px;
+  }
+  .option-label {
+    padding: 14px;
+    font-size: 1rem;
+  }
+  .confirm-btn {
+    padding: 12px 28px;
+    font-size: 1rem;
+  }
+  .checkbox-group {
+    gap: 10px;
+  }
+}
+
 /* 加油祝福彩蛋的隐藏小火苗 */
 .hidden-fire {
   position: fixed;
