@@ -412,6 +412,102 @@ body.barbecue-night .custom-context {
   15% { opacity: 1; }
   100% { transform: translateY(-90vh) scale(1.1) rotate(15deg); opacity: 0; }
 }
+/* 倒计时 */
+.countdown {
+  background-color: #e3f2fd;
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 14px;
+  color: #1565c0;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1.5px solid #90caf9;
+  transition: all 0.8s ease;
+}
+body.barbecue-night .countdown {
+  background-color: #0d1b2a;
+  color: #82b1ff;
+  border-color: #1565c0;
+}
+
+/* 留言板 */
+.guestbook {
+  margin-top: 20px;
+  text-align: left;
+}
+.guestbook-label {
+  font-size: 0.85rem;
+  color: #999;
+  margin-bottom: 8px;
+}
+body.barbecue-night .guestbook-label {
+  color: #bbada5;
+}
+.guestbook-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid #ffcc80;
+  background-color: #fff8f0;
+  color: #5d4037;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  transition: all 0.3s ease;
+}
+.guestbook-input:focus {
+  border-color: #d2691e;
+  background-color: #fff;
+}
+body.barbecue-night .guestbook-input {
+  background-color: #3d2310;
+  color: #ffe0b2;
+  border-color: #ff6b35;
+}
+body.barbecue-night .guestbook-input:focus {
+  background-color: #2d1a0a;
+}
+.guestbook-btn {
+  margin-top: 10px;
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  color: white;
+  background-color: #ffab73;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.guestbook-btn:hover {
+  background-color: #ff8a50;
+}
+.guestbook-msg {
+  margin-top: 14px;
+  background-color: #fff3e0;
+  border-radius: 12px;
+  padding: 14px;
+  color: #e65100;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border-left: 3px solid #ffab73;
+  animation: popIn 0.4s ease;
+}
+body.barbecue-night .guestbook-msg {
+  background-color: #2d1a0a;
+  color: #ffcc80;
+  border-left-color: #ff6b35;
+}
+.guestbook-msg small {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: #b8860b;
+}
+body.barbecue-night .guestbook-msg small {
+  color: #d7ccc8;
+}
+
 </style>
 </head>
 <body>
@@ -422,6 +518,8 @@ body.barbecue-night .custom-context {
 <p class="subtitle">From: hygee / To: <span class="to-name">dscad</span></p>
 
 <div class="daily-fortune" id="dailyFortune">今日运势加载中…</div>
+
+<div class="countdown" id="countdown">⏰ 计算中…</div>
 
 <div class="message">
 嗨～dscad！
@@ -449,6 +547,13 @@ body.barbecue-night .custom-context {
 <button class="confirm-btn" onclick="submitChoice()">确认选择！🍖</button>
 
 <div class="feedback" id="feedback"></div>
+
+<div class="guestbook">
+  <div class="guestbook-label">💬 给 hygee 的悄悄话：</div>
+  <textarea class="guestbook-input" id="guestInput" rows="2" placeholder="例如：我要吃五花！"></textarea>
+  <button class="guestbook-btn" onclick="saveGuestMsg()">发送留言</button>
+  <div id="guestMsgBox"></div>
+</div>
 </div>
 
 <div class="hidden-fire" title="试试点我～">🔥</div>
@@ -499,6 +604,46 @@ function showDailyFortune() {
   if (el) el.innerText = '📅 ' + dateStr + ' · ' + dailyMessages[index];
 }
 showDailyFortune();
+
+// ============ 周末倒计时 ============
+function updateCountdown() {
+  const now = new Date();
+  let target = new Date();
+  const day = now.getDay(); // 0=周日, 6=周六
+
+  if (day === 6 && now.getHours() >= 0) {
+    // 周六到了，找周日
+    target.setDate(now.getDate() + 1);
+    target.setHours(0, 0, 0, 0);
+  } else if (day === 0) {
+    // 周日，找下周一不对，找这周六已过了...
+    // 直接找下一个周六
+    target.setDate(now.getDate() + 6);
+    target.setHours(0, 0, 0, 0);
+  } else {
+    // 周一到周五，找本周六
+    target.setDate(now.getDate() + (6 - day));
+    target.setHours(0, 0, 0, 0);
+  }
+
+  const diff = target - now;
+  if (diff <= 0) {
+    document.getElementById('countdown').innerText = '⏰ 就是今天！冲鸭！';
+    return;
+  }
+
+  const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+  let text = '⏰ 距离' + (day === 6 ? '周日' : '周六') + '还有 ';
+  if (d > 0) text += d + '天 ';
+  text += h + '小时 ' + m + '分 ' + s + '秒';
+  document.getElementById('countdown').innerText = text;
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
 
 // ============ 早晚安问候弹窗 ============
 const nightMessages = [
@@ -653,6 +798,38 @@ function checkStreak() {
   }
 }
 checkStreak();
+
+// ============ 留言板 ============
+function saveGuestMsg() {
+  const input = document.getElementById('guestInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const list = JSON.parse(localStorage.getItem('kaorouGuestbook') || '[]');
+  const time = new Date().toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  list.push({ text: text, time: time });
+  localStorage.setItem('kaorouGuestbook', JSON.stringify(list));
+  input.value = '';
+  loadGuestMsg();
+}
+
+function loadGuestMsg() {
+  const box   = document.getElementById('guestMsgBox');
+  const list  = JSON.parse(localStorage.getItem('kaorouGuestbook') || '[]');
+  if (list.length === 0) { box.innerHTML = ''; return; }
+
+  let html = '';
+  list.slice(-30).reverse().forEach(function(item) {
+    html += '<div class="guest-entry"><div class="guest-text">' + escapeHtml(item.text) + '</div><div class="guest-time">' + item.time + '</div></div>';
+  });
+  box.innerHTML = html;
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+loadGuestMsg();
 
 // ============ 右键彩蛋（桌面端 + 移动端长按） ============
 document.addEventListener('contextmenu', function(e) {
